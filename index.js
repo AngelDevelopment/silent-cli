@@ -13,7 +13,7 @@ dotenv.config();
 
 const { TEST_URL } = process.env;
 
-const silent_url = TEST_URL || `https://silent-cloud-project-cloud.cyclic.app/get`;
+const silent_url = TEST_URL || `https://silent-cloud-api-render.onrender.com/get`;
 
 const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
 const input = text => new Promise(resolve => rl.question(`${text} `, a => {
