@@ -30,7 +30,7 @@ if (query.trim() === '') return console.log(`No se ha proporcionado una búsqued
           fs.mkdirSync('./data/');
      }
 
-     let amount = parseInt(await input(`Cantidad de archivos (Por defecto 5):`));
+     let amount = parseInt(await input(`Cantidad de solicitudes (Por defecto 5):`));
      let success = 0;
 
      if (isNaN(amount)) amount = 5;
@@ -46,28 +46,31 @@ if (query.trim() === '') return console.log(`No se ha proporcionado una búsqued
           total: amount
      });
 
+     const encript1 = query => JSON.stringify(Buffer.from(query).toJSON().data.map(i => i * 152));
+     const decript1 = data => Buffer.from(data.buffer.map(i => i / 1235));
+
      for (let i = 0; i < amount; i++) {
           let m = null;
 
           try {
                const { data } = await axios.get(silent_url, {
                     params: {
-                         q: JSON.stringify(Buffer.from(query).toJSON().data.map(i => i * 152)),
+                         q: encript1(query),
                          i
                     }
                });
 
-               const buffer = Buffer.from(data.buffer.map(i => i / 1235));
+               const buffer = decript1(data);
                let filename = (new URL(data.original)).pathname.split('/').pop();
                if (filename.split('.').pop() === '') filename = filename + '.png';
 
                await write(`./data/${filename}`, buffer);
 
                success++;
-               m = `\n✅ SUCCESS | FETCHED ${success}/${amount} IMAGES | ${amount - i - 1} left`;
+               m = `\n✅ SUCCESS | DOWNLOADED ${success}/${amount} IMAGES | ${amount - i - 1} REQUESTS LEFT`;
           } catch (e) {
                // throw e;
-               m = `\n❌ ERROR | FETCHED ${success}/${amount} IMAGES | ${amount - i - 1} left`;
+               m = `\n❌ ERROR | DOWNLOADED ${success}/${amount} IMAGES | ${amount - i - 1} REQUESTS LEFT`;
           }
 
           console.clear();
