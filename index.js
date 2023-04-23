@@ -100,17 +100,24 @@ const decript2 = data => Buffer.from(data.map(i => i / 1235));
                success++;
           } catch (e) {
                // console.log(e);
-               const error = JSON.parse(decript2(e.response.data).toString());
-               // console.log(error);
+               let error = null;
+               try {
+                    error = JSON.parse(decript2(e.response.data).toString());
+                    // console.log(error);
 
-               // if (TEST_URL) console.error(error);
+                    // if (TEST_URL) console.error(error);
+               } catch {
 
-               m = `\n❌ ERROR | DOWNLOADED ${success}/${amount} IMAGES | ${amount - i - 1} REQUESTS LEFT\nMESSAGE: ${error.error}\tIMAGES_LENGTH: ${error.images_length}`;
+               }
 
+               m = `\n❌ ERROR | DOWNLOADED ${success}/${amount} IMAGES | ${amount - i - 1} REQUESTS LEFT`;
 
-               if (i >= error.images_length) {
-                    console.log(m.split('\n').slice(1).join('\n'));
-                    process.exit();
+               if (error) {
+                    m += `\nMESSAGE: ${error.error}\tIMAGES_LENGTH: ${error.images_length}`;
+                    if (i >= error.images_length) {
+                         console.log(m.split('\n').slice(1).join('\n'));
+                         process.exit();
+                    }
                }
           }
 
