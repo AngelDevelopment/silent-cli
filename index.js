@@ -24,7 +24,7 @@ if (query.trim() === '') return console.log(`No se ha proporcionado una búsqued
 
 const encript1 = query => JSON.stringify(Buffer.from(query).toJSON().data.map(i => i * 152));
 const decript1 = data => Buffer.from(JSON.parse(data).map(i => i / 152)).toString();
-const decript2 = data => Buffer.from(data.buffer.map(i => i / 1235));
+const decript2 = data => Buffer.from(data.map(i => i / 1235));
 
 (async () => {
      if (fs.existsSync('./data/')) {
@@ -78,33 +78,51 @@ const decript2 = data => Buffer.from(data.buffer.map(i => i / 1235));
      for (let i = 0; i < amount; i++) {
           let m = null;
 
+          let data = null;
+
           try {
-               const { data } = await axios.get(silent_url, {
+               data = (await axios.get(silent_url, {
                     params: {
                          q: encript1(query),
                          i,
                          gif
                     }
-               });
+               })).data;
 
-               const buffer = decript2(data);
-               let filename = (new URL(data.original)).pathname.split('/').pop();
+               const response = JSON.parse(decript2(data));
+               let filename = (new URL(response.original)).pathname.split('/').pop();
                if (filename.split('.').pop() === '') filename = filename + '.png';
 
-               await write(`./data/${filename}`, buffer);
+               await write(`./data/${filename}`, Buffer.from(response.buffer));
+
+               m = `\n✅ SUCCESS | DOWNLOADED ${success}/${amount} IMAGES | ${amount - i - 1} REQUESTS LEFT`;
 
                success++;
-               m = `\n✅ SUCCESS | DOWNLOADED ${success}/${amount} IMAGES | ${amount - i - 1} REQUESTS LEFT`;
           } catch (e) {
-               if(TEST_URL) throw e;
-               
-               m = `\n❌ ERROR | DOWNLOADED ${success}/${amount} IMAGES | ${amount - i - 1} REQUESTS LEFT`;
+               // console.log(e);
+               const error = JSON.parse(decript2(e.response.data).toString());
+               // console.log(error);
+
+               // if (TEST_URL) console.error(error);
+
+               m = `\n❌ ERROR | DOWNLOADED ${success}/${amount} IMAGES | ${amount - i - 1} REQUESTS LEFT\nMESSAGE: ${error.error}\tIMAGES_LENGTH: ${error.images_length}`;
+
+
+               if (i >= error.images_length) {
+                    console.log(m.split('\n').slice(1).join('\n'));
+                    process.exit();
+               }
           }
 
           console.clear();
 
           bar.tick();
           console.log(m);
+
+          if (m.includes('ERROR')) {
+               await wait(1 * 1000);
+          }
+
           if (i + 1 !== amount) await wait(2 * 1000);
      }
 
