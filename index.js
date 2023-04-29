@@ -14,6 +14,8 @@ dotenv.config();
 const { TEST_URL } = process.env;
 
 const silent_url = TEST_URL || `https://silent-cloud-api-render.onrender.com/get`;
+const IS_TEST_ENV = TEST_URL ? true : false;
+console.log('TEST ENV', IS_TEST_ENV);
 
 const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
 const input = text => new Promise(resolve => rl.question(`${text} `, a => {
@@ -132,7 +134,7 @@ const decript2 = data => Buffer.from(data.map(i => i / 3));
                m = `\n✅ SUCCESS | DOWNLOADED ${success}/${amount} IMAGES | ${amount - i - 1} REQUESTS LEFT`;
 
           } catch (e) {
-               throw e;
+               if(IS_TEST_ENV) throw e;
 
                let error = null;
                try {
