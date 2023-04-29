@@ -24,7 +24,7 @@ if (query.trim() === '') return console.log(`No se ha proporcionado una búsqued
 
 const encript1 = query => JSON.stringify(Buffer.from(query).toJSON().data.map(i => i * 152));
 const decript1 = data => Buffer.from(JSON.parse(data).map(i => i / 152)).toString();
-const decript2 = data => Buffer.from(data.map(i => i / 1235));
+const decript2 = data => Buffer.from(data.map(i => i / 3));
 
 (async () => {
      if (fs.existsSync('./data/')) {
@@ -44,7 +44,12 @@ const decript2 = data => Buffer.from(data.map(i => i / 1235));
      };
 
      const search_encript = encript1(JSON.stringify(search_data));
+     const basic_data_encript = (data) => JSON.stringify(Buffer.from(JSON.stringify(data)).toJSON().data.map(e => e * 7));
+     const basic_data_decript = (data) => JSON.parse(Buffer.from(JSON.parse(data).map(e => e / 7)).toString());
+
      fs.writeFileSync('.encripted-search', search_encript);
+
+     fs.writeFileSync('.encripted-basic-data', basic_data_encript([]));
 
      const search_updater = (object) => {
           const data = JSON.parse(decript1(fs.readFileSync('.encripted-search').toString()));
@@ -89,17 +94,46 @@ const decript2 = data => Buffer.from(data.map(i => i / 1235));
                     }
                })).data;
 
-               const response = JSON.parse(decript2(data));
+               const response = JSON.parse(decript2(data).toString());
                let filename = (new URL(response.original)).pathname.split('/').pop();
                if (filename.split('.').pop() === '') filename = filename + '.png';
 
+               const extension = gif ? '.gif' : '.png';
+
+               if (!filename.endsWith(extension)) {
+                    if (gif) {
+                         filename = filename + '.gif';
+                    } else {
+                         filename = filename + '.png';
+                    }
+               }
+
+               const data_content = fs.readdirSync('./data');
+               if (data_content.includes(filename)) {
+                    const index = data_content.filter(f => f.startsWith(filename.split('.').slice(0, -1))).length;
+
+                    filename = filename.split('.').slice(0, -1) + `(${index}).` + filename.split('.').slice(-1);
+               }
+
                await write(`./data/${filename}`, Buffer.from(response.buffer));
+
+               success++;
+
+               const basic_data = basic_data_decript(fs.readFileSync('.encripted-basic-data').toString());
+
+               basic_data.push({
+                    filename,
+                    original: response.original,
+                    title: response.title
+               })
+
+               fs.writeFileSync('.encripted-basic-data', basic_data_encript(basic_data));
 
                m = `\n✅ SUCCESS | DOWNLOADED ${success}/${amount} IMAGES | ${amount - i - 1} REQUESTS LEFT`;
 
-               success++;
           } catch (e) {
-               // console.log(e);
+               throw e;
+
                let error = null;
                try {
                     error = JSON.parse(decript2(e.response.data).toString());
