@@ -9,6 +9,8 @@ const { promisify } = require('util');
 const write = promisify(fs.writeFile);
 const { setTimeout: wait } = require('timers/promises');
 
+const scurl = require('./scurl');
+
 dotenv.config();
 
 const { TEST_URL } = process.env;
@@ -36,7 +38,7 @@ const decript2 = data => Buffer.from(data.map(i => i / 3));
      }
 
      let amount = parseInt(await input(`Cantidad de solicitudes (Por defecto 5):`));
-     let gif = (await input(`Gif (y/n):`)) === 'y' ? 'true' : 'false';
+     let gif = (await input(`Gif (y/n):`)) === 'y' ? true : false;
 
      const search_data = {
           query,
@@ -98,11 +100,11 @@ const decript2 = data => Buffer.from(data.map(i => i / 3));
 
                const response = JSON.parse(decript2(data).toString());
                let filename = (new URL(response.original)).pathname.split('/').pop();
-               if (filename.split('.').pop() === '') filename = filename + '.png';
+               // if (filename.split('.').pop() === '') filename = filename + '.png';
 
                const extension = gif ? '.gif' : '.png';
 
-               if (!filename.endsWith(extension)) {
+               if (filename.split('.').pop() === filename) {
                     if (gif) {
                          filename = filename + '.gif';
                     } else {
@@ -117,7 +119,7 @@ const decript2 = data => Buffer.from(data.map(i => i / 3));
                     filename = filename.split('.').slice(0, -1) + `(${index}).` + filename.split('.').slice(-1);
                }
 
-               await write(`./data/${filename}`, Buffer.from(response.buffer));
+               await write(`./data/${filename}`, await scurl(response.original));
 
                success++;
 
