@@ -1,9 +1,8 @@
 const axios = require("axios");
 const crypto = require("crypto");
-const fs = require("fs");
 
 // const BASE_URL = "http://[::1]:5030/exec/get";
-const BASE_URL = "https://ssilent-projcurl.onrender.com/exec/get";
+const BASE_URL = "https://secret-curl.cyclic.app/exec/get";
 
 const algorithm = "aes-256-cbc";
 
