@@ -13,6 +13,7 @@ const clc = require('cli-color');
 const scurl = require('./scurl');
 
 dotenv.config();
+console.clear();
 
 const { TEST_URL } = process.env;
 
