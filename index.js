@@ -8,6 +8,7 @@ const dotenv = require('dotenv');
 const { promisify } = require('util');
 const write = promisify(fs.writeFile);
 const { setTimeout: wait } = require('timers/promises');
+const clc = require('cli-color');
 
 const scurl = require('./scurl');
 
@@ -17,7 +18,9 @@ const { TEST_URL } = process.env;
 
 const silent_url = TEST_URL || `https://silent-cloud-api-render.onrender.com/get`;
 const IS_TEST_ENV = TEST_URL ? true : false;
-console.log('TEST ENV', IS_TEST_ENV);
+
+console.clear();
+console.log(IS_TEST_ENV ? clc.red('⬤ NOT ENCRYPTED') : clc.green('⬤ ENCRYPTED'));
 
 const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
 const input = text => new Promise(resolve => rl.question(`${text} `, a => {
