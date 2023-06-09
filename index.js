@@ -18,9 +18,9 @@ const { TEST_URL } = process.env;
 
 const silent_url = TEST_URL || `https://silent-cloud-api-render.onrender.com/get`;
 const IS_TEST_ENV = TEST_URL ? true : false;
-
-console.clear();
-console.log(IS_TEST_ENV ? clc.red('⬤ NOT ENCRYPTED') : clc.green('⬤ ENCRYPTED'));
+const ENCRYPT_STATUS = IS_TEST_ENV ? clc.red('⬤ NOT ENCRYPTED') : clc.green('⬤ ENCRYPTED');
+console.log(`${ENCRYPT_STATUS}\t\t${IS_TEST_ENV ? clc.red('local-google') : clc.cyan('silent-cloud')} & ${clc.green('secret-curl')}`);
+console.log();
 
 const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
 const input = text => new Promise(resolve => rl.question(`${text} `, a => {
